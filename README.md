@@ -1,11 +1,8 @@
-# End Of Life
-As you can see in issues, I don't take too much time to answer to every needs, because lack of time / skill !
-There won't be any updates from now. I will remove the card from HACS default, you will still be able to use it with HACS custom repository.
-
-
 # Lovelace tempometer-gauge-card
 
 A Home Assistant lovelace custom gauge card for barometer, thermometer, humidity meter or anything you want with custom icons.
+
+Compatible with Home Assistant 2024.1.0+.
 
 ![pressure-and-temp](https://user-images.githubusercontent.com/25659602/106396921-2dc16900-640b-11eb-9921-baabe2fdb378.png)
 ![humidity-and-custom](https://user-images.githubusercontent.com/25659602/106397020-a9231a80-640b-11eb-882e-3b38cde7fa69.png)

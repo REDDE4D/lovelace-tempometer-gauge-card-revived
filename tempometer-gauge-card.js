@@ -1,19 +1,31 @@
-console.info(`%c TEMPOMETER-CARD \n%c      v1.4-beta.1`, 'color: orange; font-weight: bold; background: black', 'color: white; font-weight: bold; background: dimgray');
+console.info(`%c TEMPOMETER-CARD \n%c      v2.0.0`, 'color: orange; font-weight: bold; background: black', 'color: white; font-weight: bold; background: dimgray');
+
 class TempometerGaugeCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
   }
+
+  static getStubConfig() {
+    return {
+      entity: 'sensor.temperature',
+      min: 0,
+      max: 100,
+      title: 'Temperature',
+      card_style: 'thermometer',
+    };
+  }
+
   setConfig(config) {
     if (!config.entity) {
       throw new Error('Please define an entity');
     }
-	if (config.max == null) {
-		throw new Error('Please define the max config option');
-	}
-	if (config.min == null) {
-		throw new Error('Please define the min config option');
-	}
+    if (config.max == null) {
+      throw new Error('Please define the max config option');
+    }
+    if (config.min == null) {
+      throw new Error('Please define the min config option');
+    }
 
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
@@ -24,7 +36,7 @@ class TempometerGaugeCard extends HTMLElement {
     if (config.horizontal) {
       cardConfig.scale = "40px";
     }
-    
+
     const entityParts = this._splitEntityAndAttribute(cardConfig.entity);
     cardConfig.entity = entityParts.entity;
     if (entityParts.attribute) cardConfig.attribute = entityParts.attribute;
@@ -40,13 +52,10 @@ class TempometerGaugeCard extends HTMLElement {
       cardConfig.entity_max = entityMaxParts.entity;
       if (entityMaxParts.attribute) cardConfig.maxAttribute = entityMaxParts.attribute;
     }
-    
-    if (config.icon_color !== undefined) {
-        var icon_color = config.icon_color;
-    } else {
-        var icon_color = "var(--paper-item-icon-color)";
-    }
-	    
+
+    const icon_color = this._sanitizeCSSValue(config.icon_color) || "var(--paper-item-icon-color)";
+    const sanitizedScale = this._sanitizeCSSValue(cardConfig.scale) || "50px";
+
     let card_style = cardConfig.card_style;
     const card = document.createElement('ha-card');
     const content = document.createElement('div');
@@ -54,7 +63,7 @@ class TempometerGaugeCard extends HTMLElement {
 
     style.textContent = `
       ha-card {
-        --base-unit: ${cardConfig.scale};
+        --base-unit: ${sanitizedScale};
         height: calc(var(--base-unit)*3.5);
         position: relative;
       }
@@ -121,57 +130,57 @@ class TempometerGaugeCard extends HTMLElement {
         font-size: calc(var(--base-unit) * 0.30);
       }
       .gauge-icons{
-            width: calc(var(--base-unit) * 4);
-            height: calc(var(--base-unit) * 2.5);
-            text-align: center;
-            margin: 0 auto;
-            padding-top: calc(var(--base-unit)*0.15);
-        }
+        width: calc(var(--base-unit) * 4);
+        height: calc(var(--base-unit) * 2.5);
+        text-align: center;
+        margin: 0 auto;
+        padding-top: calc(var(--base-unit)*0.15);
+      }
       .icon1{
-            width: 18px;
-            height: 18px;
-            color: ${icon_color};
-            float: left;
-            padding-top: 3em;
-        }
+        width: 18px;
+        height: 18px;
+        color: ${icon_color};
+        float: left;
+        padding-top: 3em;
+      }
       .icon2{
-            width: 18px;
-            height: 18px;
-            color: ${icon_color};
-            padding-top: .5em;
-            padding-right: 9px;
-        }
+        width: 18px;
+        height: 18px;
+        color: ${icon_color};
+        padding-top: .5em;
+        padding-right: 9px;
+      }
       .icon3{
-            width: 18px;
-            height: 18px;
-            color: ${icon_color};
-            float: right;
-            padding-top: 3em;
-        }
+        width: 18px;
+        height: 18px;
+        color: ${icon_color};
+        float: right;
+        padding-top: 3em;
+      }
       .gauge-footer{
-            position: absolute;
-            width: calc(var(--base-unit) *4);
-            height: calc(var(--base-unit) *.75);
-            top: calc(var(--base-unit) *2);
-            z-index: 4;
-            font-size: calc(var(--base-unit) * 0.30);
-            font-weight: 400;
-            padding-top: .25em;
-            background: var(--card-background-color);
-        }
+        position: absolute;
+        width: calc(var(--base-unit) *4);
+        height: calc(var(--base-unit) *.75);
+        top: calc(var(--base-unit) *2);
+        z-index: 4;
+        font-size: calc(var(--base-unit) * 0.30);
+        font-weight: 400;
+        padding-top: .25em;
+        background: var(--card-background-color);
+      }
       .gauge-footer .minval{
-            float: left;
-            color: #797575;
-            padding-left: .5em;
-        }
+        float: left;
+        color: #797575;
+        padding-left: .5em;
+      }
       .gauge-footer .maxval{
-            float: right;
-            color: #797575;
-            padding-right: .25em;
-        }
+        float: right;
+        color: #797575;
+        padding-right: .25em;
+      }
       .gauge-c hr {
-            visibility: hidden;
-        }
+        visibility: hidden;
+      }
       .gauge-d{
         z-index: 100;
         position: absolute;
@@ -199,54 +208,10 @@ class TempometerGaugeCard extends HTMLElement {
         transform: rotate(125deg);
       }
     `;
-    content.innerHTML = `
-    <div id="gauge-icons" class="gauge-icons" style="display: none;">
-        <ha-icon class="icon1" icon="${cardConfig.icon1}"></ha-icon>
-        <ha-icon class="icon2" icon="${cardConfig.icon2}"></ha-icon>
-        <ha-icon class="icon3" icon="${cardConfig.icon3}"></ha-icon>
-    </div>
-    <div id="gauge-icons-baro" class="gauge-icons">
-        <ha-icon class="icon1" icon=mdi:weather-pouring></ha-icon>
-        <ha-icon class="icon2" icon=mdi:weather-partly-cloudy></ha-icon>
-        <ha-icon class="icon3" icon=mdi:weather-sunny></ha-icon>
-    </div>
-    <div id="gauge-icons-thermo" class="gauge-icons" style="display: none;">
-        <ha-icon class="icon1" icon=mdi:thermometer-low></ha-icon>
-        <ha-icon class="icon2" icon=mdi:thermometer></ha-icon>
-        <ha-icon class="icon3" icon=mdi:thermometer-high></ha-icon>
-    </div>
-    <div id="gauge-icons-water" class="gauge-icons" style="display: none;">
-        <ha-icon class="icon1" icon=mdi:water-off></ha-icon>
-        <ha-icon class="icon2" icon=mdi:water-percent></ha-icon>
-        <ha-icon class="icon3" icon=mdi:water></ha-icon>
-    </div>
-    <div class="container">
-        <div class="gauge-a">
-        </div>
-        <div class="gauge-b"></div>
-        <div class="gauge-c" id="gauge"></div>
-        <div class="gauge-d" id="recentMin">
-            <svg id="svg_min" style="margin-right: 90%; width: 18px;height: 18px; margin-top: -6px; padding-bottom: 10px" viewBox="0 0 24 24">
-                <title id="svg_min_title"></title>
-                <path fill="blue" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-	    </svg>
-        </div>
-        <div class="gauge-e" id="recentMax">
-            <svg id="svg_max" style="margin-right: 90%; width: 18px;height: 18px; margin-top: -12px; padding-bottom:10px;" viewBox="0 0 24 24">
-                <title id="svg_max_title"></title>
-                <path fill="red" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
-            </svg>
-        </div>
-        <div class="gauge-data">
-            <div id="percent"></div>
-            <div id="title"></div>
-        </div>
-        <div class="gauge-footer">
-            <span id="minval" class="minval"></span>
-            <span id="maxval" class="maxval"></span>
-        </div>
-      </div>
-    `;
+
+    // Build DOM safely instead of using innerHTML with interpolated config values
+    this._buildCardDOM(content, cardConfig);
+
     card.appendChild(content);
     card.appendChild(style);
     card.addEventListener('click', event => {
@@ -254,44 +219,166 @@ class TempometerGaugeCard extends HTMLElement {
     });
     root.appendChild(card);
     this._config = cardConfig;
-	
-	if (card_style == "thermometer") {
-		root.getElementById("gauge-icons-baro").style.display = 'none';
-		root.getElementById("gauge-icons-water").style.display = 'none';
-		root.getElementById("gauge-icons-thermo").style.display = 'block';
-		root.getElementById("gauge-icons").style.display = 'none';
-	} else if (card_style == "humidity") {
-		root.getElementById("gauge-icons-baro").style.display = 'none';
-		root.getElementById("gauge-icons-water").style.display = 'block';
-		root.getElementById("gauge-icons-thermo").style.display = 'none';
-		root.getElementById("gauge-icons").style.display = 'none';
-	} else if (card_style == "custom") {
-	    root.getElementById("gauge-icons-baro").style.display = 'none';
-		root.getElementById("gauge-icons-water").style.display = 'none';
-		root.getElementById("gauge-icons-thermo").style.display = 'none';
-		root.getElementById("gauge-icons").style.display = 'block';
-	}
+
+    if (card_style == "thermometer") {
+      root.getElementById("gauge-icons-baro").style.display = 'none';
+      root.getElementById("gauge-icons-water").style.display = 'none';
+      root.getElementById("gauge-icons-thermo").style.display = 'block';
+      root.getElementById("gauge-icons").style.display = 'none';
+    } else if (card_style == "humidity") {
+      root.getElementById("gauge-icons-baro").style.display = 'none';
+      root.getElementById("gauge-icons-water").style.display = 'block';
+      root.getElementById("gauge-icons-thermo").style.display = 'none';
+      root.getElementById("gauge-icons").style.display = 'none';
+    } else if (card_style == "custom") {
+      root.getElementById("gauge-icons-baro").style.display = 'none';
+      root.getElementById("gauge-icons-water").style.display = 'none';
+      root.getElementById("gauge-icons-thermo").style.display = 'none';
+      root.getElementById("gauge-icons").style.display = 'block';
+    }
+  }
+
+  _sanitizeCSSValue(value) {
+    if (value == null) return null;
+    const str = String(value);
+    // Strip characters that could break out of CSS value context
+    if (/[{}<>;"']/.test(str) || /expression\s*\(/i.test(str) || /url\s*\(/i.test(str)) {
+      return null;
+    }
+    return str;
+  }
+
+  _buildCardDOM(container, cardConfig) {
+    // Custom icons section
+    const customIcons = this._createIconSection('gauge-icons', [
+      { cls: 'icon1', icon: cardConfig.icon1 || '' },
+      { cls: 'icon2', icon: cardConfig.icon2 || '' },
+      { cls: 'icon3', icon: cardConfig.icon3 || '' },
+    ]);
+    customIcons.style.display = 'none';
+    container.appendChild(customIcons);
+
+    // Barometer icons
+    const baroIcons = this._createIconSection('gauge-icons-baro', [
+      { cls: 'icon1', icon: 'mdi:weather-pouring' },
+      { cls: 'icon2', icon: 'mdi:weather-partly-cloudy' },
+      { cls: 'icon3', icon: 'mdi:weather-sunny' },
+    ]);
+    container.appendChild(baroIcons);
+
+    // Thermometer icons
+    const thermoIcons = this._createIconSection('gauge-icons-thermo', [
+      { cls: 'icon1', icon: 'mdi:thermometer-low' },
+      { cls: 'icon2', icon: 'mdi:thermometer' },
+      { cls: 'icon3', icon: 'mdi:thermometer-high' },
+    ]);
+    thermoIcons.style.display = 'none';
+    container.appendChild(thermoIcons);
+
+    // Water/humidity icons
+    const waterIcons = this._createIconSection('gauge-icons-water', [
+      { cls: 'icon1', icon: 'mdi:water-off' },
+      { cls: 'icon2', icon: 'mdi:water-percent' },
+      { cls: 'icon3', icon: 'mdi:water' },
+    ]);
+    waterIcons.style.display = 'none';
+    container.appendChild(waterIcons);
+
+    // Main gauge container
+    const gaugeContainer = document.createElement('div');
+    gaugeContainer.className = 'container';
+
+    gaugeContainer.appendChild(this._createElement('div', { className: 'gauge-a' }));
+    gaugeContainer.appendChild(this._createElement('div', { className: 'gauge-b' }));
+    gaugeContainer.appendChild(this._createElement('div', { className: 'gauge-c', id: 'gauge' }));
+
+    // Min marker with SVG
+    const recentMin = this._createElement('div', { className: 'gauge-d', id: 'recentMin' });
+    recentMin.appendChild(this._createMarkerSVG('svg_min', 'svg_min_title', 'blue', 'M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z', '-6px'));
+    gaugeContainer.appendChild(recentMin);
+
+    // Max marker with SVG
+    const recentMax = this._createElement('div', { className: 'gauge-e', id: 'recentMax' });
+    recentMax.appendChild(this._createMarkerSVG('svg_max', 'svg_max_title', 'red', 'M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z', '-12px'));
+    gaugeContainer.appendChild(recentMax);
+
+    // Gauge data
+    const gaugeData = this._createElement('div', { className: 'gauge-data' });
+    gaugeData.appendChild(this._createElement('div', { id: 'percent' }));
+    gaugeData.appendChild(this._createElement('div', { id: 'title' }));
+    gaugeContainer.appendChild(gaugeData);
+
+    // Footer with min/max labels
+    const footer = this._createElement('div', { className: 'gauge-footer' });
+    const minSpan = this._createElement('span', { id: 'minval', className: 'minval' });
+    const maxSpan = this._createElement('span', { id: 'maxval', className: 'maxval' });
+    footer.appendChild(minSpan);
+    footer.appendChild(maxSpan);
+    gaugeContainer.appendChild(footer);
+
+    container.appendChild(gaugeContainer);
+  }
+
+  _createElement(tag, props) {
+    const el = document.createElement(tag);
+    if (props) {
+      if (props.className) el.className = props.className;
+      if (props.id) el.id = props.id;
+    }
+    return el;
+  }
+
+  _createIconSection(id, icons) {
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'gauge-icons';
+    for (const iconDef of icons) {
+      const haIcon = document.createElement('ha-icon');
+      haIcon.className = iconDef.cls;
+      haIcon.setAttribute('icon', iconDef.icon);
+      div.appendChild(haIcon);
+    }
+    return div;
+  }
+
+  _createMarkerSVG(svgId, titleId, color, pathD, marginTop) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.id = svgId;
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.style.cssText = `margin-right: 90%; width: 18px; height: 18px; margin-top: ${marginTop}; padding-bottom: 10px;`;
+
+    const title = document.createElementNS(svgNS, 'title');
+    title.id = titleId;
+    svg.appendChild(title);
+
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('fill', color);
+    path.setAttribute('d', pathD);
+    svg.appendChild(path);
+
+    return svg;
   }
 
   _splitEntityAndAttribute(entity) {
-      let parts = entity.split('.');
-      if (parts.length < 3) {
-          return { entity: entity };
-      }
+    let parts = entity.split('.');
+    if (parts.length < 3) {
+      return { entity: entity };
+    }
 
-      return { attribute: parts.pop(), entity: parts.join('.') };
+    return { attribute: parts.pop(), entity: parts.join('.') };
   }
 
   _fire(type, detail, options) {
     const node = this.shadowRoot;
     options = options || {};
     detail = (detail === null || detail === undefined) ? {} : detail;
-    const event = new Event(type, {
+    const event = new CustomEvent(type, {
       bubbles: options.bubbles === undefined ? true : options.bubbles,
       cancelable: Boolean(options.cancelable),
-      composed: options.composed === undefined ? true : options.composed
+      composed: options.composed === undefined ? true : options.composed,
+      detail: detail,
     });
-    event.detail = detail;
     node.dispatchEvent(event);
     return event;
   }
@@ -310,7 +397,7 @@ class TempometerGaugeCard extends HTMLElement {
     };
     if (!sections) return severityMap["normal"];
     let sortable = [];
-    for (let severity in sections) {
+    for (const severity of Object.keys(sections)) {
       sortable.push([severity, sections[severity]]);
     }
     sortable.sort((a, b) => { return a[1] - b[1] });
@@ -346,44 +433,53 @@ class TempometerGaugeCard extends HTMLElement {
   set hass(hass) {
     const root = this.shadowRoot;
     const config = this._config;
-    var entityState = this._getEntityStateValue(hass.states[config.entity], config.attribute);
+    const entityObj = hass.states[config.entity];
+    if (!entityObj) return;
+
+    var entityState = this._getEntityStateValue(entityObj, config.attribute);
     var maxEntityState = null;
     var minEntityState = null;
     if (config.entity_max !== undefined) {
-        maxEntityState = this._getEntityStateValue(hass.states[config.entity_max], config.maxAttribute);
+      const maxObj = hass.states[config.entity_max];
+      if (maxObj) {
+        maxEntityState = this._getEntityStateValue(maxObj, config.maxAttribute);
+      }
     } else {
-        root.getElementById("recentMax").style.display = 'none';
+      root.getElementById("recentMax").style.display = 'none';
     }
     if (config.entity_min !== undefined) {
-        minEntityState = this._getEntityStateValue(hass.states[config.entity_min], config.minAttribute);
+      const minObj = hass.states[config.entity_min];
+      if (minObj) {
+        minEntityState = this._getEntityStateValue(minObj, config.minAttribute);
+      }
     } else {
-        root.getElementById("recentMin").style.display = 'none';
+      root.getElementById("recentMin").style.display = 'none';
     }
 
     let measurement = "";
     if (config.measurement == null) {
-      if (hass.states[config.entity].attributes.unit_of_measurement === undefined) {
+      if (entityObj.attributes.unit_of_measurement === undefined) {
         measurement = '';
       } else {
-        measurement = hass.states[config.entity].attributes.unit_of_measurement;
+        measurement = entityObj.attributes.unit_of_measurement;
       }
     } else {
       measurement = config.measurement;
     }
 
-	root.getElementById("minval").innerHTML = config.min;
-	root.getElementById("maxval").innerHTML = config.max;
-    
-  // Set decimal precision
-  if (config.decimals !== undefined) {
-      // Only allow positive numbers
-      if (config.decimals >= 0) {
-        entityState = Math.round(parseFloat(entityState) * (10 ** config.decimals)) / (10 ** config.decimals)   // Round (https://stackoverflow.com/a/11832950)
-        entityState = entityState.toFixed(config.decimals)  // Add trailing zeroes if applicable        
-      }
-  }
+    // Use textContent instead of innerHTML to prevent XSS
+    root.getElementById("minval").textContent = config.min;
+    root.getElementById("maxval").textContent = config.max;
 
-	if (entityState !== this._entityState) {
+    // Set decimal precision
+    if (config.decimals !== undefined) {
+      if (config.decimals >= 0) {
+        entityState = Math.round(parseFloat(entityState) * (10 ** config.decimals)) / (10 ** config.decimals);
+        entityState = entityState.toFixed(config.decimals);
+      }
+    }
+
+    if (entityState !== this._entityState) {
       root.getElementById("percent").textContent = `${entityState} ${measurement}`;
       root.getElementById("title").textContent = config.title;
       const turn = this._translateTurn(entityState, config) / 10;
@@ -391,22 +487,24 @@ class TempometerGaugeCard extends HTMLElement {
       root.getElementById("gauge").style.backgroundColor = this._computeSeverity(entityState, config.severity);
       this._entityState = entityState;
     }
-	if (config.entity_max !== null) {
-	    if (maxEntityState !== this._maxEntityState) {
-		    this._maxEntityState = maxEntityState;
-		    const turn3 = this._translateTurn(maxEntityState, config) /10;  
-		    root.getElementById("recentMax").style.transform = `rotate(${turn3}turn)`;
-		    root.getElementById("svg_max_title").innerHTML = maxEntityState;
-	    }
-	}
-	if (config.entity_min !== null) {
-	    if (minEntityState !== this._minEntityState) {
-		    this._minEntityState = minEntityState;
-		    const turn2 = this._translateTurn(minEntityState, config) /10;
-            root.getElementById("recentMin").style.transform = `rotate(${turn2}turn)`;
-		    root.getElementById("svg_min_title").innerHTML = minEntityState;
-	    } 
-	}
+    if (config.entity_max !== null) {
+      if (maxEntityState !== this._maxEntityState) {
+        this._maxEntityState = maxEntityState;
+        const turn3 = this._translateTurn(maxEntityState, config) / 10;
+        root.getElementById("recentMax").style.transform = `rotate(${turn3}turn)`;
+        // Use textContent instead of innerHTML to prevent XSS
+        root.getElementById("svg_max_title").textContent = maxEntityState;
+      }
+    }
+    if (config.entity_min !== null) {
+      if (minEntityState !== this._minEntityState) {
+        this._minEntityState = minEntityState;
+        const turn2 = this._translateTurn(minEntityState, config) / 10;
+        root.getElementById("recentMin").style.transform = `rotate(${turn2}turn)`;
+        // Use textContent instead of innerHTML to prevent XSS
+        root.getElementById("svg_min_title").textContent = minEntityState;
+      }
+    }
     root.lastChild.hass = hass;
   }
 
@@ -416,3 +514,11 @@ class TempometerGaugeCard extends HTMLElement {
 }
 
 customElements.define('tempometer-gauge-card', TempometerGaugeCard);
+
+// Register with Home Assistant card picker (modern HA 2024.x+)
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: 'tempometer-gauge-card',
+  name: 'Tempometer Gauge Card',
+  description: 'A gauge card for barometer, thermometer, humidity or custom sensors',
+});

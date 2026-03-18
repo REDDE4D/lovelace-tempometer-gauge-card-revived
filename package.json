@@ -1,0 +1,23 @@
+{
+  "name": "lovelace-tempometer-gauge-card",
+  "version": "2.0.0",
+  "description": "A Home Assistant Lovelace custom gauge card for barometer, thermometer, humidity meter or custom sensors",
+  "main": "tempometer-gauge-card.js",
+  "keywords": [
+    "home-assistant",
+    "lovelace",
+    "custom-card",
+    "gauge",
+    "thermometer",
+    "barometer",
+    "humidity"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/REDDE4D/lovelace-tempometer-gauge-card-deprecated"
+  },
+  "homeassistant": {
+    "minVersion": "2024.1.0"
+  }
+}
