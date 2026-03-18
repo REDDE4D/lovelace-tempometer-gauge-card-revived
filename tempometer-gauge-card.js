@@ -511,11 +511,23 @@ class TempometerGaugeCard extends HTMLElement {
   getCardSize() {
     return 1;
   }
+
+  getGridOptions() {
+    return {
+      columns: 6,
+      rows: 4,
+      min_columns: 4,
+      min_rows: 3,
+    };
+  }
 }
 
-customElements.define('tempometer-gauge-card', TempometerGaugeCard);
+// Guard against duplicate registration (scoped custom element registry in HA 2025+)
+if (!customElements.get('tempometer-gauge-card')) {
+  customElements.define('tempometer-gauge-card', TempometerGaugeCard);
+}
 
-// Register with Home Assistant card picker (modern HA 2024.x+)
+// Register with Home Assistant card picker
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: 'tempometer-gauge-card',

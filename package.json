@@ -18,6 +18,6 @@
     "url": "https://github.com/REDDE4D/lovelace-tempometer-gauge-card-deprecated"
   },
   "homeassistant": {
-    "minVersion": "2024.1.0"
+    "minVersion": "2026.3.2"
   }
 }
