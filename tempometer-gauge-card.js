@@ -241,31 +241,27 @@ class TempometerGaugeCard extends HTMLElement {
       .gauge-c hr {
         visibility: hidden;
       }
-      .gauge-d{
-        z-index: 100;
+      .gauge-d, .gauge-e {
+        z-index: 5;
         position: absolute;
         width: calc(var(--base-unit) * 4);
         height: 0;
         top: calc(var(--base-unit) * 2);
-        margin-left: auto;
-        margin-right: auto;
-        border-radius: 0px 0px calc(var(--base-unit) * 2) calc(var(--base-unit) * 2) ;
+        left: 0;
         transform-origin: center top;
-        transition: ${cardConfig.animation === false ? 'none' : 'transform 1.3s ease-in-out, background-color 0.3s ease'};
-        transform: rotate(45deg);
+        transition: ${cardConfig.animation === false ? 'none' : 'transform 1.3s ease-in-out'};
       }
-      .gauge-e{
-        z-index: 101;
+      .gauge-e { z-index: 6; }
+      .gauge-d svg, .gauge-e svg {
+        --marker-size: clamp(16px, calc(var(--base-unit) * 0.44), 24px);
         position: absolute;
-        width: calc(var(--base-unit) * 4);
-        height: 0;
-        top: calc(var(--base-unit) * 2);
-        margin-left: auto;
-        margin-right: auto;
-        border-radius: 0px 0px calc(var(--base-unit) * 2) calc(var(--base-unit) * 2) ;
-        transform-origin: center top;
-        transition: ${cardConfig.animation === false ? 'none' : 'transform 1.3s ease-in-out, background-color 0.3s ease'};
-        transform: rotate(125deg);
+        display: block;
+        width: var(--marker-size);
+        height: var(--marker-size);
+        left: calc(var(--base-unit) * 0.1 - var(--marker-size) / 12);
+        top: calc(var(--marker-size) / -2);
+        overflow: visible;
+        filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.55));
       }
       ha-card:focus-visible {
         outline: 2px solid var(--primary-color, #03a9f4);
@@ -371,12 +367,12 @@ class TempometerGaugeCard extends HTMLElement {
 
     // Min marker with SVG
     const recentMin = this._createElement('div', { className: 'gauge-d', id: 'recentMin' });
-    recentMin.appendChild(this._createMarkerSVG('svg_min', 'svg_min_title', 'var(--info-color, var(--label-badge-blue, #039be5))', 'M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z', '-6px'));
+    recentMin.appendChild(this._createMarkerSVG('svg_min', 'svg_min_title', 'var(--info-color, var(--label-badge-blue, #039be5))', 'M2,12 L20,3 L20,21 Z'));
     gaugeContainer.appendChild(recentMin);
 
     // Max marker with SVG
     const recentMax = this._createElement('div', { className: 'gauge-e', id: 'recentMax' });
-    recentMax.appendChild(this._createMarkerSVG('svg_max', 'svg_max_title', 'var(--error-color, var(--label-badge-red, #db4437))', 'M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z', '-12px'));
+    recentMax.appendChild(this._createMarkerSVG('svg_max', 'svg_max_title', 'var(--error-color, var(--label-badge-red, #db4437))', 'M2,12 L20,3 L20,21 Z'));
     gaugeContainer.appendChild(recentMax);
 
     // Gauge data
@@ -418,12 +414,12 @@ class TempometerGaugeCard extends HTMLElement {
     return div;
   }
 
-  _createMarkerSVG(svgId, titleId, color, pathD, marginTop) {
+  _createMarkerSVG(svgId, titleId, color, pathD) {
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.id = svgId;
     svg.setAttribute('viewBox', '0 0 24 24');
-    svg.style.cssText = `margin-right: 90%; width: 18px; height: 18px; margin-top: ${marginTop}; padding-bottom: 10px;`;
+
 
     const title = document.createElementNS(svgNS, 'title');
     title.id = titleId;
@@ -432,6 +428,10 @@ class TempometerGaugeCard extends HTMLElement {
     const path = document.createElementNS(svgNS, 'path');
     path.setAttribute('fill', color);
     path.setAttribute('d', pathD);
+    path.setAttribute('stroke', 'var(--card-background-color, #fff)');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linejoin', 'round');
+    path.setAttribute('paint-order', 'stroke fill');
     svg.appendChild(path);
 
     return svg;

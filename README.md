@@ -54,7 +54,7 @@ The gauge automatically shrinks to fit its parent with 12 px space on either sid
 
 `scale` sets the maximum gauge size: `50px` produces a 200 px wide gauge, and `40px` produces a 160 px wide gauge. Set `responsive: false` to keep the exact configured gauge size; it may overflow a narrow parent. The legacy `horizontal: true` selects `40px`.
 
-Click the card, or focus it with Tab and press Enter or Space, to open the entity's more-info dialog. Keyboard focus is visible. Min/max markers have hover tooltips with their formatted values and unit. Long values and titles are truncated to fit.
+Click the card, or focus it with Tab and press Enter or Space, to open the entity's more-info dialog. Keyboard focus is visible. Min/max markers are filled blue/red triangles with a contrasting outline; their tips align with the gauge arc, including in narrow cards. They have hover tooltips with their formatted values and unit. Long values and titles are truncated to fit.
 
 Animations automatically respect the operating system's **Reduce motion** preference. Set `animation: false` to disable them regardless of that preference.
 
