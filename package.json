@@ -1,6 +1,6 @@
 {
   "name": "lovelace-tempometer-gauge-card",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "description": "A Home Assistant Lovelace custom gauge card for barometer, thermometer, humidity meter or custom sensors",
   "main": "tempometer-gauge-card.js",
   "keywords": [
@@ -19,5 +19,11 @@
   },
   "homeassistant": {
     "minVersion": "2026.3.2"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "check": "node --check tempometer-gauge-card.js",
+    "test:browser": "node tests/browser.cjs",
+    "previews": "node scripts/generate-previews.cjs"
   }
 }
